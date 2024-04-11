@@ -44,6 +44,35 @@ function CartItemDrawer({
     [item],
   );
 
+  function handleMultipleOptions(option: Option) {
+    setFormData((prevFormData) => {
+      const {options} = prevFormData;
+      const category = option.category;
+
+      // Ensure options is defined before accessing its properties
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      const selectedOptions = options ? options[category] || [] : [];
+
+      // Check if the option is already selected
+      const isOptionSelected = selectedOptions.some((opt) => opt.title === option.title);
+
+      let updatedOptions;
+
+      if (isOptionSelected) {
+        // If already selected, remove it
+        updatedOptions = selectedOptions.filter((opt) => opt.title !== option.title);
+      } else {
+        // If not selected, add it
+        updatedOptions = [...selectedOptions, option];
+      }
+
+      return {
+        ...prevFormData,
+        options: {...options, [category]: updatedOptions},
+      };
+    });
+  }
+
   function handleSelectOption(option: Option) {
     setFormData((_formData) => ({
       ..._formData,
@@ -80,10 +109,43 @@ function CartItemDrawer({
             </div>
             {Boolean(options.length) && (
               <div className="flex flex-col gap-8">
-                {options.map((category) => {
-                  return (
-                    <div key={category.title} className="flex w-full flex-col gap-4">
-                      <p className="text-lg font-medium">{category.title}</p>
+                {options.map((category) => (
+                  <div key={category.title} className="flex w-full flex-col gap-4">
+                    <p className="text-lg font-medium">{category.title}</p>
+                    {category.title === "Empanadas" ? (
+                      <div className="flex flex-col gap-4">
+                        {category.options.map((option) => (
+                          <div key={option.title} className="flex items-center gap-x-3">
+                            <input
+                              checked={Boolean(
+                                formData.options?.[category.title]?.includes(option),
+                              )}
+                              id={option.title}
+                              type="checkbox"
+                              value={option.title}
+                              onChange={() => {
+                                handleMultipleOptions(option);
+                              }}
+                            />
+                            <Label className="w-full" htmlFor={option.title}>
+                              <div className="flex w-full items-center justify-between gap-2">
+                                <p>{option.title}</p>
+                                {Boolean(option.price) && (
+                                  <div className="flex items-center gap-1">
+                                    <p className="text-muted-foreground">
+                                      {option.price < 0 ? "-" : "+"}
+                                    </p>
+                                    <p className="font-medium">
+                                      {parseCurrency(Math.abs(option.price))}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
                       <RadioGroup value={formData.options?.[category.title]?.[0]?.title}>
                         <div className="flex flex-col gap-4">
                           {category.options.map((option) => (
@@ -114,9 +176,9 @@ function CartItemDrawer({
                           ))}
                         </div>
                       </RadioGroup>
-                    </div>
-                  );
-                })}
+                    )}
+                  </div>
+                ))}
               </div>
             )}
           </div>

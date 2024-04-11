@@ -3,6 +3,7 @@ import type {Cart, CartItem, Checkout} from "./types";
 import {parseCurrency} from "~/currency/utils";
 
 export function getCartItemPrice(item: CartItem): number {
+  if (item.category === "Empanadas") return item.price;
   const optionsPrice = item.options
     ? Object.values(item.options).reduce((price, option) => price + option[0]?.price, 0)
     : 0;
