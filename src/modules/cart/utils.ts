@@ -27,6 +27,7 @@ export function getCartMessage(cart: Cart, checkout: Checkout): string {
   const items = Array.from(cart.values())
     .map(
       (item) =>
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         `* ${item.title}${item.quantity > 1 ? ` (X${item.quantity})` : ``}${
           item.options && Object.keys(item.options).length > 0
             ? ` [${getCartItemOptionsSummary(item.options)}]`
