@@ -44,33 +44,80 @@ function CartItemDrawer({
     [item],
   );
 
-  function handleMultipleOptions(option: Option) {
+  function handleAddMultipleOptions(option: Option) {
     setFormData((prevFormData) => {
       const {options} = prevFormData;
       const category = option.category;
 
-      // Ensure options is defined before accessing its properties
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      const selectedOptions = options ? options[category] || [] : [];
+      // Get the existing options for the category, or initialize an empty array if none exists
+      const existingOptions = options?.[category] ? [...options[category]] : [];
 
-      // Check if the option is already selected
-      const isOptionSelected = selectedOptions.some((opt) => opt.title === option.title);
+      // Check if the option already exists in the existing options array
+      const existingOptionIndex = existingOptions.findIndex((opt) => opt.title === option.title);
 
-      let updatedOptions;
-
-      if (isOptionSelected) {
-        // If already selected, remove it
-        updatedOptions = selectedOptions.filter((opt) => opt.title !== option.title);
+      // If the option already exists, update its quantity
+      if (existingOptionIndex !== -1) {
+        existingOptions[existingOptionIndex] = {
+          ...existingOptions[existingOptionIndex],
+          quantity: (existingOptions[existingOptionIndex].quantity || 0) + 1,
+        };
       } else {
-        // If not selected, add it
-        updatedOptions = [...selectedOptions, option];
+        // If the option doesn't exist, add it with quantity 1
+        existingOptions.push({...option, quantity: 1});
       }
 
+      // Update the options state for the category
+      const updatedOptions = {...options, [category]: existingOptions};
+
+      // Return the updated form data
       return {
         ...prevFormData,
-        options: {...options, [category]: updatedOptions},
+        options: updatedOptions,
       };
     });
+  }
+
+  function handleRemoveMultipleOptions(option: Option) {
+    setFormData((prevFormData) => {
+      const {options} = prevFormData;
+      const category = option.category;
+
+      // Get the existing options for the category, or initialize an empty array if none exists
+      const existingOptions = options?.[category] ? [...options[category]] : [];
+
+      // Find the index of the option in the existing options array
+      const existingOptionIndex = existingOptions.findIndex((opt) => opt.title === option.title);
+
+      // If the option exists and its quantity is greater than 1, decrement its quantity
+      if (existingOptionIndex !== -1) {
+        if (existingOptions[existingOptionIndex].quantity > 1) {
+          existingOptions[existingOptionIndex] = {
+            ...existingOptions[existingOptionIndex],
+            quantity: existingOptions[existingOptionIndex].quantity - 1,
+          };
+        } else {
+          // If the quantity is 1, remove the option from the array
+          existingOptions.splice(existingOptionIndex, 1);
+        }
+      }
+
+      // Update the options state for the category
+      const updatedOptions = {...options, [category]: existingOptions};
+
+      // Return the updated form data
+      return {
+        ...prevFormData,
+        options: updatedOptions,
+      };
+    });
+  }
+
+  function getQuantity(option: Option) {
+    const selectedOptions = formData.options?.[option.category] || [];
+
+    const selectedOption = selectedOptions.find((opt) => opt.title === option.title);
+
+    return selectedOption ? selectedOption.quantity : 0;
   }
 
   function handleSelectOption(option: Option) {
@@ -115,21 +162,19 @@ function CartItemDrawer({
                     {category.title === "Empanadas" ? (
                       <div className="flex flex-col gap-4">
                         {category.options.map((option) => (
-                          <div key={option.title} className="flex items-center gap-x-3">
-                            <input
-                              checked={Boolean(
-                                formData.options?.[category.title]?.includes(option),
-                              )}
-                              id={option.title}
-                              type="checkbox"
-                              value={option.title}
-                              onChange={() => {
-                                handleMultipleOptions(option);
-                              }}
-                            />
+                          <div key={option.title} className="flex items-center gap-x-3 p-2">
                             <Label className="w-full" htmlFor={option.title}>
                               <div className="flex w-full items-center justify-between gap-2">
                                 <p>{option.title}</p>
+                                <div className="flex items-center justify-center gap-4">
+                                  <Button onClick={() => handleRemoveMultipleOptions(option)}>
+                                    -
+                                  </Button>
+                                  <div>{getQuantity(option)}</div> {/* Display the quantity */}
+                                  <Button onClick={() => handleAddMultipleOptions(option)}>
+                                    +
+                                  </Button>
+                                </div>
                                 {Boolean(option.price) && (
                                   <div className="flex items-center gap-1">
                                     <p className="text-muted-foreground">
@@ -193,6 +238,18 @@ function CartItemDrawer({
             </div>
             <Button
               className="w-full"
+              disabled={
+                formData.category === "Empanadas"
+                  ? formData.options?.Empanadas
+                    ? formData.options.Empanadas.reduce(
+                        (totalQuantity, option) => totalQuantity + (option.quantity || 0),
+                        0,
+                      ) !== formData.minimum || formData.options.Empanadas.length === 0
+                    : !formData.options?.Empanadas
+                      ? true
+                      : false
+                  : false
+              }
               size="lg"
               variant="brand"
               onClick={() => {

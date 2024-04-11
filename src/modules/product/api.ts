@@ -23,6 +23,7 @@ class Product implements IProduct {
   image: IProduct["image"];
   options: IProduct["options"];
   price: IProduct["price"];
+  minimum: IProduct["minimum"];
 
   constructor() {
     this.options = {} as Product["options"];
@@ -36,6 +37,7 @@ class Product implements IProduct {
       description: product.description,
       image: product.image,
       price: Number(product.price),
+      minimum: Number(product.minimum),
     });
   }
 
@@ -52,6 +54,7 @@ class Product implements IProduct {
       description: option.description,
       image: option.image,
       price: Number(option.price),
+      quantity: Number(option.quantity),
     });
   }
 
@@ -64,6 +67,7 @@ class Product implements IProduct {
       image: this.image,
       options: this.options,
       price: Number(this.price),
+      minimum: Number(this.minimum),
     };
 
     if (Object.keys(product.options!).length === 0) {

@@ -5,6 +5,7 @@ export interface Option {
   description: string;
   image: string;
   price: number;
+  quantity: number;
 }
 
 export interface Product {
@@ -15,4 +16,5 @@ export interface Product {
   image: string;
   options?: Record<Option["category"], Option[]>;
   price: number;
+  minimum: number;
 }
