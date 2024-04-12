@@ -170,7 +170,7 @@ function CartItemDrawer({
                                   <Button onClick={() => handleRemoveMultipleOptions(option)}>
                                     -
                                   </Button>
-                                  <div>{getQuantity(option)}</div> {/* Display the quantity */}
+                                  <div>{getQuantity(option)}</div>
                                   <Button onClick={() => handleAddMultipleOptions(option)}>
                                     +
                                   </Button>
@@ -239,7 +239,7 @@ function CartItemDrawer({
             <Button
               className="w-full"
               disabled={
-                formData.category === "Empanadas"
+                formData.multiple
                   ? formData.options?.Empanadas
                     ? formData.options.Empanadas.reduce(
                         (totalQuantity, option) => totalQuantity + (option.quantity || 0),

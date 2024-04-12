@@ -3,7 +3,7 @@ import type {Cart, CartItem, Checkout} from "./types";
 import {parseCurrency} from "~/currency/utils";
 
 export function getCartItemPrice(item: CartItem): number {
-  if (item.category === "Empanadas") return item.price;
+  if (item.multiple) return item.price;
   const optionsPrice = item.options
     ? Object.values(item.options).reduce((price, option) => price + option[0]?.price, 0)
     : 0;
@@ -17,29 +17,34 @@ export function getCartTotal(cart: Cart): number {
 
 export function getCartItemOptionsSummary(options: CartItem["options"]): string {
   return Object.entries(options!)
-    .reduce<string[]>(
-      (_options, [category, option]) => _options.concat(`${category}: ${option[0].title}`),
-      [],
-    )
+    .reduce<string[]>((_options, [_category, optionList]) => {
+      const optionsSummary = optionList.map(
+        (option) => `${option.title}: ${option.quantity || `$ ${option.price}`}`,
+      );
+
+      return _options.concat(optionsSummary);
+    }, [])
     .join(", ");
 }
 
 export function getCartMessage(cart: Cart, checkout: Checkout): string {
   const items = Array.from(cart.values())
-    .map(
-      (item) =>
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        `* ${item.title}${item.quantity > 1 ? ` (X${item.quantity})` : ``}${
-          item.options && Object.keys(item.options).length > 0
-            ? ` [${getCartItemOptionsSummary(item.options)}]`
-            : ``
-        } - ${parseCurrency(getCartItemPrice(item))}`,
-    )
-    .join("\n");
+    .map((item) => {
+      let optionsSummary = "";
+
+      if (item.options && Object.keys(item.options).length > 0) {
+        optionsSummary = `\n${getCartItemOptionsSummary(item.options).replace(/, /g, "\n ").replace(/: /g, ": ")}`;
+      }
+
+      return `* ${item.title}${optionsSummary}\n${parseCurrency(getCartItemPrice(item))}`;
+    })
+    .join("\n\n")
+    .replace(/\n /g, "\n"); // Remove extra space at the beginning of each item
+
   const fields = Array.from(checkout.entries())
     .map(([key, value]) => `* ${key}: ${value}`)
     .join("\n");
   const total = `Total: ${parseCurrency(getCartTotal(cart))}`;
 
-  return [items, fields, total].join("\n\n");
+  return `${items}\n\n${fields}\n\n${total}`;
 }

@@ -24,6 +24,7 @@ class Product implements IProduct {
   options: IProduct["options"];
   price: IProduct["price"];
   minimum: IProduct["minimum"];
+  multiple: IProduct["multiple"];
 
   constructor() {
     this.options = {} as Product["options"];
@@ -68,6 +69,7 @@ class Product implements IProduct {
       options: this.options,
       price: Number(this.price),
       minimum: Number(this.minimum),
+      multiple: Boolean(this.minimum),
     };
 
     if (Object.keys(product.options!).length === 0) {

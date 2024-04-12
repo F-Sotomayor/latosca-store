@@ -17,4 +17,5 @@ export interface Product {
   options?: Record<Option["category"], Option[]>;
   price: number;
   minimum: number;
+  multiple: boolean;
 }
