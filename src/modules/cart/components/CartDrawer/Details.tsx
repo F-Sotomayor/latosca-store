@@ -13,6 +13,20 @@ function Details({cart, onChange}: {cart: Cart; onChange: (id: number, item: Car
     <div className="flex flex-col gap-4">
       {Array.from(cart.entries()).map(([id, item]) => (
         <div key={id.toString()} className="flex gap-2" data-testid={`cart-item-${item.id}`}>
+          {item.category !== "Promociones" && (
+            <div className="mr-4 flex items-center gap-2">
+              <Button
+                className="text-md h-6 w-6 rounded-full p-0.5"
+                data-testid="decrement"
+                variant="destructive"
+                onClick={() => {
+                  onChange(id, {...item, quantity: item.quantity - 1});
+                }}
+              >
+                <MinusIcon className="h-6 w-6" />
+              </Button>
+            </div>
+          )}
           <div className="flex w-full flex-col gap-1">
             <div className="flex items-start justify-between gap-4">
               <div className="flex flex-col">
@@ -31,33 +45,6 @@ function Details({cart, onChange}: {cart: Cart; onChange: (id: number, item: Car
                 {parseCurrency(getCartItemPrice(item))}
               </p>
             </div>
-            {item.category !== "Promociones" && (
-              <div className="flex gap-2">
-                <Button
-                  className="text-md h-6 w-6 rounded-full p-0.5"
-                  data-testid="decrement"
-                  variant="brand"
-                  onClick={() => {
-                    onChange(id, {...item, quantity: item.quantity - 1});
-                  }}
-                >
-                  <MinusIcon className="h-6 w-6" />
-                </Button>
-                <p className="min-w-[24px] text-center font-medium" data-testid="quantity">
-                  {item.quantity}
-                </p>
-                <Button
-                  className="text-md h-6 w-6 rounded-full p-0.5"
-                  data-testid="increment"
-                  variant="brand"
-                  onClick={() => {
-                    onChange(id, {...item, quantity: item.quantity + 1});
-                  }}
-                >
-                  <PlusIcon className="h-6 w-6" />
-                </Button>
-              </div>
-            )}
           </div>
         </div>
       ))}
