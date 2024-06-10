@@ -39,6 +39,7 @@ class Product implements IProduct {
       image: product.image,
       price: Number(product.price),
       minimum: Number(product.minimum),
+      multiple: String(product.multiple) === "TRUE" ? true : false,
     });
   }
 
@@ -69,7 +70,7 @@ class Product implements IProduct {
       options: this.options,
       price: Number(this.price),
       minimum: Number(this.minimum),
-      multiple: Boolean(this.minimum),
+      multiple: this.multiple,
     };
 
     if (Object.keys(product.options!).length === 0) {

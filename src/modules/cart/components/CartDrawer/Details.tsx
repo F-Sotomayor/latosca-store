@@ -31,7 +31,7 @@ function Details({cart, onChange}: {cart: Cart; onChange: (id: number, item: Car
                 {parseCurrency(getCartItemPrice(item))}
               </p>
             </div>
-            {item.category !== "Empanadas" && (
+            {item.category !== "Promociones" && (
               <div className="flex gap-2">
                 <Button
                   className="text-md h-6 w-6 rounded-full p-0.5"

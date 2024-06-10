@@ -4,11 +4,19 @@ import {parseCurrency} from "~/currency/utils";
 
 export function getCartItemPrice(item: CartItem): number {
   if (item.multiple) return item.price;
+
   const optionsPrice = item.options
-    ? Object.values(item.options).reduce((price, option) => price + option[0]?.price, 0)
+    ? Object.values(item.options).reduce((totalPrice, optionArray) => {
+        return (
+          totalPrice +
+          optionArray.reduce((price, option) => {
+            return price + option.price * option.quantity;
+          }, 0)
+        );
+      }, 0)
     : 0;
 
-  return (optionsPrice + item.price) * item.quantity;
+  return optionsPrice;
 }
 
 export function getCartTotal(cart: Cart): number {

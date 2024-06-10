@@ -34,26 +34,41 @@ function CartItemDrawer({
   onClose: VoidFunction;
   onSubmit: (item: CartItem) => void;
 }) {
-  const [formData, setFormData] = useState<CartItem>(() => ({...item, options: {}}));
+  const [formData, setFormData] = useState<CartItem>(() => ({
+    ...item,
+    options: {},
+  }));
   const total = useMemo(() => parseCurrency(getCartItemPrice(formData)), [formData]);
+
   const options = useMemo(
     () =>
       item.options
-        ? Object.entries(item.options).map(([title, _options]) => ({title, options: _options}))
+        ? Object.entries(item.options).map(([title, _options]) => ({
+            title,
+            options: _options,
+          }))
         : [],
     [item],
   );
 
-  function handleAddMultipleOptions(option: Option) {
+  function handleAddToCart(option: Option) {
     setFormData((prevFormData) => {
       const {options} = prevFormData;
       const category = option.category;
-
-      // Get the existing options for the category, or initialize an empty array if none exists
       const existingOptions = options?.[category] ? [...options[category]] : [];
-
-      // Check if the option already exists in the existing options array
       const existingOptionIndex = existingOptions.findIndex((opt) => opt.title === option.title);
+
+      // Calculate the current total quantity
+      const currentTotalQuantity = Object.values(prevFormData.options ?? {}).reduce(
+        (totalQuantity, optionsArray) =>
+          totalQuantity + optionsArray.reduce((sum, opt) => sum + (opt.quantity || 0), 0),
+        0,
+      );
+
+      // If formData.multiple is true and current total quantity is equal to or greater than minimum, do not add more
+      if (prevFormData.multiple && currentTotalQuantity >= prevFormData.minimum) {
+        return prevFormData;
+      }
 
       // If the option already exists, update its quantity
       if (existingOptionIndex !== -1) {
@@ -66,26 +81,17 @@ function CartItemDrawer({
         existingOptions.push({...option, quantity: 1});
       }
 
-      // Update the options state for the category
       const updatedOptions = {...options, [category]: existingOptions};
 
-      // Return the updated form data
-      return {
-        ...prevFormData,
-        options: updatedOptions,
-      };
+      return {...prevFormData, options: updatedOptions};
     });
   }
 
-  function handleRemoveMultipleOptions(option: Option) {
+  function handleRemoveFromCart(option: Option) {
     setFormData((prevFormData) => {
       const {options} = prevFormData;
       const category = option.category;
-
-      // Get the existing options for the category, or initialize an empty array if none exists
       const existingOptions = options?.[category] ? [...options[category]] : [];
-
-      // Find the index of the option in the existing options array
       const existingOptionIndex = existingOptions.findIndex((opt) => opt.title === option.title);
 
       // If the option exists and its quantity is greater than 1, decrement its quantity
@@ -101,14 +107,9 @@ function CartItemDrawer({
         }
       }
 
-      // Update the options state for the category
       const updatedOptions = {...options, [category]: existingOptions};
 
-      // Return the updated form data
-      return {
-        ...prevFormData,
-        options: updatedOptions,
-      };
+      return {...prevFormData, options: updatedOptions};
     });
   }
 
@@ -159,7 +160,7 @@ function CartItemDrawer({
                 {options.map((category) => (
                   <div key={category.title} className="flex w-full flex-col gap-4">
                     <p className="text-lg font-medium">{category.title}</p>
-                    {category.title === "Empanadas" ? (
+                    {category.title === "Promociones" ? (
                       <div className="flex flex-col gap-4">
                         {category.options.map((option) => (
                           <div key={option.title} className="flex items-center gap-x-3 p-2">
@@ -167,13 +168,9 @@ function CartItemDrawer({
                               <div className="flex w-full items-center justify-between gap-2">
                                 <p>{option.title}</p>
                                 <div className="flex items-center justify-center gap-4">
-                                  <Button onClick={() => handleRemoveMultipleOptions(option)}>
-                                    -
-                                  </Button>
+                                  <Button onClick={() => handleRemoveFromCart(option)}>-</Button>
                                   <div>{getQuantity(option)}</div>
-                                  <Button onClick={() => handleAddMultipleOptions(option)}>
-                                    +
-                                  </Button>
+                                  <Button onClick={() => handleAddToCart(option)}>+</Button>
                                 </div>
                                 {Boolean(option.price) && (
                                   <div className="flex items-center gap-1">
@@ -233,22 +230,45 @@ function CartItemDrawer({
           <div className="flex w-full flex-col gap-4">
             <hr />
             <div className="flex items-center justify-between text-lg font-medium">
-              <p>Total</p>
-              <p>{total}</p>
+              {!Boolean(formData.multiple) && (
+                <div className="flex items-center justify-center gap-4">
+                  <Button onClick={() => handleRemoveFromCart(formData)}>-</Button>
+                  <div>{getQuantity(formData)}</div>
+                  <Button onClick={() => handleAddToCart(formData)}>+</Button>
+                </div>
+              )}
+              <div className="flex gap-4">
+                <p>Total: </p>
+                <p>
+                  {Object.values(formData.options ?? {}).reduce(
+                    (totalQuantity, optionsArray) =>
+                      totalQuantity +
+                      optionsArray.reduce((sum, option) => sum + (option.quantity || 0), 0),
+                    0,
+                  ) === 0
+                    ? parseCurrency(formData.price)
+                    : total}
+                </p>
+              </div>
             </div>
             <Button
               className="w-full"
               disabled={
                 formData.multiple
-                  ? formData.options?.Empanadas
-                    ? formData.options.Empanadas.reduce(
+                  ? formData.options?.Promociones
+                    ? formData.options.Promociones.reduce(
                         (totalQuantity, option) => totalQuantity + (option.quantity || 0),
                         0,
-                      ) !== formData.minimum || formData.options.Empanadas.length === 0
-                    : !formData.options?.Empanadas
-                      ? true
-                      : false
-                  : false
+                      ) !== formData.minimum
+                    : true
+                  : formData.options
+                    ? Object.values(formData.options).reduce(
+                        (totalQuantity, optionsArray) =>
+                          totalQuantity +
+                          optionsArray.reduce((sum, option) => sum + (option.quantity || 0), 0),
+                        0,
+                      ) === 0
+                    : true
               }
               size="lg"
               variant="brand"
