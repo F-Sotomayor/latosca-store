@@ -84,12 +84,21 @@ const RootLayout = async ({children}: {children: React.ReactNode}) => {
               <p className="sm:text-md border-t py-4 text-center text-sm text-muted-foreground">
                 © Copyright {new Date().getFullYear()}. Hecho con <ThemeToggle /> y Next.js, por{" "}
                 <a
-                  className="underline"
+                  className="mr-2 underline"
                   href="https://twitter.com/goncy"
                   rel="noopener noreferrer"
                   target="_blank"
                 >
                   goncy
+                </a>
+                y
+                <a
+                  className="ml-2 mr-1 underline"
+                  href="https://www.linkedin.com/in/facusotomayor/"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  fake
                 </a>
                 .
               </p>
