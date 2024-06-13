@@ -58,7 +58,7 @@ function EditItemForm({item, onSubmit}: EditItemFormProps) {
         </Button>
       </div>
       <Button className="w-full" variant="brand" onClick={handleSubmit}>
-        Save Changes
+        Guardar Cambios
       </Button>
     </div>
   );
