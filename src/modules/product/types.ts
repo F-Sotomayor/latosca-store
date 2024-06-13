@@ -18,4 +18,5 @@ export interface Product {
   price: number;
   minimum: number;
   multiple: boolean;
+  disabled: boolean;
 }

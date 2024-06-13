@@ -3,7 +3,7 @@ import type {Option} from "~/product/types";
 import type {CartItem} from "../types";
 import type {ComponentProps} from "react";
 
-import {useState, useMemo} from "react";
+import {useState, useMemo, useEffect} from "react";
 import {X} from "lucide-react";
 
 import {parseCurrency} from "~/currency/utils";
@@ -36,7 +36,17 @@ function CartItemDrawer({
 }) {
   const [formData, setFormData] = useState<CartItem>(() => ({
     ...item,
-    options: {},
+    options: item.options
+      ? Object.fromEntries(
+          Object.entries(item.options).map(([category, options]) => [
+            category,
+            options.map((option) => ({
+              ...option,
+              quantity: 1, // Set initial quantity to 1
+            })),
+          ]),
+        )
+      : {},
   }));
   const total = useMemo(() => parseCurrency(getCartItemPrice(formData)), [formData]);
 
@@ -50,6 +60,16 @@ function CartItemDrawer({
         : [],
     [item],
   );
+
+  useEffect(() => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      options: {
+        ...(prevFormData.options || {}),
+        [item.category]: prevFormData.options?.[item.category] || [{...item, quantity: 1}],
+      },
+    }));
+  }, [item]);
 
   function handleAddToCart(option: Option) {
     setFormData((prevFormData) => {
@@ -94,17 +114,17 @@ function CartItemDrawer({
       const existingOptions = options?.[category] ? [...options[category]] : [];
       const existingOptionIndex = existingOptions.findIndex((opt) => opt.title === option.title);
 
+      // If the option exists and its quantity is 1, do not decrement the quantity
+      if (existingOptionIndex !== -1 && existingOptions[existingOptionIndex].quantity === 1) {
+        return prevFormData;
+      }
+
       // If the option exists and its quantity is greater than 1, decrement its quantity
       if (existingOptionIndex !== -1) {
-        if (existingOptions[existingOptionIndex].quantity > 1) {
-          existingOptions[existingOptionIndex] = {
-            ...existingOptions[existingOptionIndex],
-            quantity: existingOptions[existingOptionIndex].quantity - 1,
-          };
-        } else {
-          // If the quantity is 1, remove the option from the array
-          existingOptions.splice(existingOptionIndex, 1);
-        }
+        existingOptions[existingOptionIndex] = {
+          ...existingOptions[existingOptionIndex],
+          quantity: existingOptions[existingOptionIndex].quantity - 1,
+        };
       }
 
       const updatedOptions = {...options, [category]: existingOptions};

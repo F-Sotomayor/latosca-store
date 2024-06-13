@@ -1,14 +1,38 @@
 import type {Cart, CartItem} from "../../types";
 
-import {MinusIcon, PlusIcon} from "lucide-react";
+import React, {useState} from "react";
+import {MinusIcon} from "lucide-react"; // Import Edit3Icon
 
 import {parseCurrency} from "~/currency/utils";
 
 import {Button} from "@/components/ui/button";
+import Modal from "@/components/ui/EditModal";
+import EditItemForm from "@/components/ui/EditItemForm";
 
 import {getCartItemPrice, getCartItemOptionsSummary} from "../../utils";
 
 function Details({cart, onChange}: {cart: Cart; onChange: (id: number, item: CartItem) => void}) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<CartItem | null>(null);
+
+  const handleEditClick = (item: CartItem) => {
+    setSelectedItem(item);
+    setIsModalOpen(true);
+  };
+
+  const handleModalSubmit = (updatedItem: CartItem) => {
+    if (selectedItem) {
+      const itemId = Array.from(cart.entries()).find(
+        ([_, cartItem]) => cartItem === selectedItem,
+      )?.[0];
+
+      if (itemId) {
+        onChange(itemId, {...selectedItem, ...updatedItem});
+      }
+    }
+    setIsModalOpen(false);
+  };
+
   return (
     <div className="flex flex-col gap-4">
       {Array.from(cart.entries()).map(([id, item]) => (
@@ -25,6 +49,14 @@ function Details({cart, onChange}: {cart: Cart; onChange: (id: number, item: Car
               >
                 <MinusIcon className="h-6 w-6" />
               </Button>
+              <Button
+                className="text-md h-6 w-6 rounded-full p-0.5"
+                data-testid="edit"
+                variant="outline"
+                onClick={() => handleEditClick(item)}
+              >
+                <img alt="Editar" className="h-7 w-24 max-w-none" src="/assets/edit.png" />
+              </Button>
             </div>
           )}
           <div className="flex w-full flex-col gap-1">
@@ -35,8 +67,8 @@ function Details({cart, onChange}: {cart: Cart; onChange: (id: number, item: Car
                   <div className="text-muted-foreground">
                     {getCartItemOptionsSummary(item.options)
                       .split(",")
-                      .map((item, index) => (
-                        <div key={index}>{item}</div>
+                      .map((option, index) => (
+                        <div key={index}>{option}</div>
                       ))}
                   </div>
                 )}
@@ -48,6 +80,16 @@ function Details({cart, onChange}: {cart: Cart; onChange: (id: number, item: Car
           </div>
         </div>
       ))}
+
+      {isModalOpen && selectedItem ? (
+        <Modal
+          isOpen={isModalOpen}
+          title={selectedItem.title}
+          onClose={() => setIsModalOpen(false)}
+        >
+          <EditItemForm item={selectedItem} onSubmit={handleModalSubmit} />
+        </Modal>
+      ) : null}
     </div>
   );
 }

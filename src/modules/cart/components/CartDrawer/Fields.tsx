@@ -61,8 +61,6 @@ function Fields({
 }) {
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
 
-  console.log(selectedValue);
-
   const handleChange = (id: string, value: string) => {
     onChange(id, value);
 

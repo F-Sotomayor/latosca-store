@@ -25,6 +25,7 @@ class Product implements IProduct {
   price: IProduct["price"];
   minimum: IProduct["minimum"];
   multiple: IProduct["multiple"];
+  disabled: IProduct["disabled"];
 
   constructor() {
     this.options = {} as Product["options"];
@@ -40,6 +41,7 @@ class Product implements IProduct {
       price: Number(product.price),
       minimum: Number(product.minimum),
       multiple: String(product.multiple) === "TRUE" ? true : false,
+      disabled: String(product.disabled) === "TRUE" ? true : false,
     });
   }
 
@@ -71,6 +73,7 @@ class Product implements IProduct {
       price: Number(this.price),
       minimum: Number(this.minimum),
       multiple: this.multiple,
+      disabled: this.disabled,
     };
 
     if (Object.keys(product.options!).length === 0) {
@@ -121,8 +124,9 @@ const api = {
           header: true,
           complete: (results) => {
             const data = normalize(results.data as (RawProduct | RawOption | RawUnknown)[]);
+            const filterDisabled = data.filter((product) => !product.disabled);
 
-            return resolve(data);
+            return resolve(filterDisabled);
           },
           error: (error: Error) => reject(error.message),
         });
