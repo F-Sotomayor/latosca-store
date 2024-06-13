@@ -48,7 +48,7 @@ function EditItemForm({item, onSubmit}: EditItemFormProps) {
         >
           <MinusIcon className="h-6 w-6" />
         </Button>
-        <div>{quantity}</div>
+        <div className="text-black">{quantity}</div>
         <Button
           className="text-md h-6 w-6 rounded-full p-0.5"
           variant="brand"
@@ -57,7 +57,7 @@ function EditItemForm({item, onSubmit}: EditItemFormProps) {
           <PlusIcon className="h-6 w-6" />
         </Button>
       </div>
-      <Button className="w-full" onClick={handleSubmit}>
+      <Button className="w-full" variant="brand" onClick={handleSubmit}>
         Save Changes
       </Button>
     </div>
