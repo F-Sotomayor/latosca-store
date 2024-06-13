@@ -125,8 +125,23 @@ const api = {
           complete: (results) => {
             const data = normalize(results.data as (RawProduct | RawOption | RawUnknown)[]);
             const filterDisabled = data.filter((product) => !product.disabled);
+            const customCategoryOrder = [
+              "Empanadas Clasicas",
+              "Empanadas Especiales",
+              "Empanadas Oro",
+              "Pizza",
+              "Bebidas",
+            ];
 
-            return resolve(filterDisabled);
+            // Sort the filtered data by category using custom order
+            const orderedData = filterDisabled.sort((a, b) => {
+              const indexA = customCategoryOrder.indexOf(a.category);
+              const indexB = customCategoryOrder.indexOf(b.category);
+
+              return indexA - indexB;
+            });
+
+            return resolve(orderedData);
           },
           error: (error: Error) => reject(error.message),
         });
