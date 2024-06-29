@@ -46,6 +46,17 @@ function CartDrawer({
 
   function handleUpdateField(id: string, value: string) {
     updateField(id, value);
+
+    const updatedCart = new Map(cart);
+    const deliveryPrice = value === "Delivery" ? 600 : 0;
+
+    updatedCart.forEach((item, key) => {
+      updatedCart.set(key, {...item, deliveryPrice});
+    });
+
+    updatedCart.forEach((item, key) => {
+      updateItem(key, item);
+    });
   }
 
   useEffect(() => {

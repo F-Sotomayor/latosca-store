@@ -20,7 +20,10 @@ export function getCartItemPrice(item: CartItem): number {
 }
 
 export function getCartTotal(cart: Cart): number {
-  return Array.from(cart.values()).reduce((total, item) => total + getCartItemPrice(item), 0);
+  return Array.from(cart.values()).reduce(
+    (total, item) => total + getCartItemPrice(item) + (item.deliveryPrice > 1 ? 600 : 0),
+    0,
+  );
 }
 
 export function getCartItemOptionsSummary(options: CartItem["options"]): string {
