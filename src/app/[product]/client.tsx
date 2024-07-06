@@ -15,7 +15,7 @@ export default function ProductPageClient({product}: {product: Product}) {
   const router = useRouter();
 
   function handleAddToCart(product: Product) {
-    addItem(Date.now(), {...product, quantity: 1});
+    addItem(Date.now(), {...product, quantity: 1, deliveryPrice: 0});
     router.push("/");
   }
 

@@ -12,7 +12,10 @@ import {parseCurrency} from "~/currency/utils";
 
 function ProductCard({product, onAdd}: {product: Product; onAdd: (product: Product) => void}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const cartItem = useMemo<CartItem>(() => ({...product, quantity: 1}), [product]);
+  const cartItem = useMemo<CartItem>(
+    () => ({...product, quantity: 1, deliveryPrice: 0}),
+    [product],
+  );
 
   return (
     <>

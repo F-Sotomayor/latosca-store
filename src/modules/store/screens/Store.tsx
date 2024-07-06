@@ -142,7 +142,7 @@ function StoreScreen({products}: {products: Product[]}) {
                         key={product.id}
                         product={product}
                         onAdd={(item: Product) => {
-                          addItem(Date.now(), {...item, quantity: 1});
+                          addItem(Date.now(), {...item, quantity: 1, deliveryPrice: 0});
                         }}
                       />
                     ))
