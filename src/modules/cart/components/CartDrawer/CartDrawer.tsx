@@ -33,6 +33,7 @@ function CartDrawer({
 }) {
   const [{total, message, cart, checkout}, {removeItem, updateItem, updateField}] = useCart();
   const [currentStep, setCurrentStep] = useState<"details" | "fields">("details");
+  const [deliverySelected, setDeliverySelected] = useState<boolean>(false);
 
   function handleUpdateCart(id: number, item: CartItem) {
     if (!item.quantity) {
@@ -47,17 +48,37 @@ function CartDrawer({
   function handleUpdateField(id: string, value: string) {
     updateField(id, value);
 
+    if (id === "Forma de retiro") {
+      if (value === "Retiro en el local") {
+        setDeliverySelected(false);
+      } else {
+        setDeliverySelected(true);
+      }
+    }
+
     const updatedCart = new Map(cart);
-    const deliveryPrice = value === "Delivery" ? 600 : 0;
+    const deliveryPrice = 600;
+
+    let deliveryPriceAdded = false;
 
     updatedCart.forEach((item, key) => {
-      updatedCart.set(key, {...item, deliveryPrice});
+      // Only add the delivery price once
+      if (!deliveryPriceAdded && value === "Delivery") {
+        updatedCart.set(key, {...item, deliveryPrice});
+        deliveryPriceAdded = true;
+      }
+      if (value === "Retiro en el Local") {
+        updatedCart.set(key, {...item, deliveryPrice: 0});
+        deliveryPriceAdded = false;
+      }
     });
 
     updatedCart.forEach((item, key) => {
       updateItem(key, item);
     });
   }
+
+  // updatedCart.set(key, {...item});
 
   useEffect(() => {
     if (!cart.size) {
