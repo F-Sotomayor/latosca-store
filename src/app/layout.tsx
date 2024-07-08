@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const RootLayout = async ({children}: {children: React.ReactNode}) => {
+async function RootLayout({children}: {children: React.ReactNode}) {
   const store = await api.fetch();
 
   return (
@@ -85,11 +85,20 @@ const RootLayout = async ({children}: {children: React.ReactNode}) => {
                 © Copyright {new Date().getFullYear()}. Hecho con <ThemeToggle /> por{" "}
                 <a
                   className="mr-2 underline"
-                  href="https://www.instagram.com/sfn_tiendas/"
+                  href="https://www.instagram.com/sotomayorfacundo/"
                   rel="noopener noreferrer"
                   target="_blank"
                 >
-                  SFN Tiendas
+                  fake
+                </a>
+                y{" "}
+                <a
+                  className="mr-2 underline"
+                  href="https://x.com/goncy"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  goncy
                 </a>
               </p>
               {/* Fin de copyright */}
@@ -99,6 +108,6 @@ const RootLayout = async ({children}: {children: React.ReactNode}) => {
       </body>
     </html>
   );
-};
+}
 
 export default RootLayout;
