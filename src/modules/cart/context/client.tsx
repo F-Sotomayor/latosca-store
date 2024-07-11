@@ -65,7 +65,9 @@ function CartProviderClient({
           // Update the quantity of the existing item in cart
           const currentQuantity = item.options?.[value.category]?.[0]?.quantity || 0;
 
-          item?.options?[value.category][0].quantity = currentQuantity + quantityToAdd;
+          if (!item.options) return;
+
+          item.options[value.category][0].quantity = currentQuantity + quantityToAdd;
 
           // Update cart with modified item
           cart.set(key, item);
