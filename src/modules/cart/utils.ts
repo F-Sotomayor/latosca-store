@@ -41,13 +41,7 @@ export function getCartItemOptionsSummary(options: CartItem["options"]): string 
 export function getCartMessage(cart: Cart, checkout: Checkout): string {
   const items = Array.from(cart.values())
     .map((item) => {
-      let optionsSummary = "";
-
-      if (item.options && Object.keys(item.options).length > 0) {
-        optionsSummary = `\n${getCartItemOptionsSummary(item.options).replace(/, /g, "\n ").replace(/: /g, ": ")}`;
-      }
-
-      return `* ${item.title}${optionsSummary}\n${parseCurrency(getCartItemPrice(item))}`;
+      return `* ${item.title}\nCantidad: ${String(getCartItemPrice(item) / item.price)}\n${parseCurrency(getCartItemPrice(item))}`;
     })
     .join("\n\n")
     .replace(/\n /g, "\n"); // Remove extra space at the beginning of each item

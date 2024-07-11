@@ -52,11 +52,39 @@ function CartProviderClient({
 
   const addItem = useCallback(
     (id: number, value: CartItem) => {
-      cart.set(id, value);
+      let itemAlreadyExists = false;
 
-      setCart(new Map(cart));
+      // Check if the item already exists in the cart
+      for (const [key, item] of Array.from(cart)) {
+        if (item.id === value.id) {
+          itemAlreadyExists = true;
+
+          // Get the quantity to add from value options
+          const quantityToAdd = value.options?.[value.category]?.[0]?.quantity || 0;
+
+          // Update the quantity of the existing item in cart
+          const currentQuantity = item.options?.[value.category]?.[0]?.quantity || 0;
+
+          item.options[value.category][0].quantity = currentQuantity + quantityToAdd;
+
+          // Update cart with modified item
+          cart.set(key, item);
+
+          // Update state with the new Map instance to trigger re-render
+          setCart(new Map(cart));
+          break;
+        }
+      }
+
+      // If item does not already exist, add it to the cart
+      if (!itemAlreadyExists) {
+        cart.set(id, value);
+
+        // Update state with the new Map instance to trigger re-render
+        setCart(new Map(cart));
+      }
     },
-    [cart],
+    [cart, setCart],
   );
 
   const removeItem = useCallback(

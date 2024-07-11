@@ -1,11 +1,13 @@
 import type {Checkout, Field} from "../../types";
 
-import {useState} from "react";
+import {useEffect, useState} from "react";
 
 import {Alert} from "@/components/ui/alert";
 import {Input} from "@/components/ui/input";
 import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group";
 import {Label} from "@/components/ui/label";
+
+import {useCart} from "../../context/client";
 
 function TextField({
   value,
@@ -60,6 +62,19 @@ function Fields({
   onChange: (id: string, value: string) => void;
 }) {
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
+  const [hasDeliveryPrice, setHasDeliveryPrice] = useState<boolean>(false);
+  const [{cart}] = useCart();
+
+  useEffect(() => {
+    // Convert Map to array of values
+    const cartItems = Array.from(cart.values());
+
+    // Check if any item has a deliveryPrice
+    const containsDeliveryPrice = cartItems.some((item) => item.deliveryPrice > 0);
+
+    // Update the state
+    setHasDeliveryPrice(containsDeliveryPrice);
+  }, [cart]);
 
   const handleChange = (id: string, value: string) => {
     onChange(id, value);
@@ -87,7 +102,7 @@ function Fields({
               {field.note ? <Alert>{field.note}</Alert> : null}
             </div>
           )}
-          {field.type === "text" && selectedValue === "Delivery" && (
+          {field.type === "text" && hasDeliveryPrice ? (
             <div className="flex flex-col gap-4">
               <p className="text-lg font-medium">{field.title}</p>
               <TextField
@@ -99,15 +114,16 @@ function Fields({
               />
               {field.note ? <Alert>{field.note}</Alert> : null}
             </div>
-          )}
+          ) : null}
         </div>
       ))}
-      {selectedValue === "Delivery" && (
+      {hasDeliveryPrice ? (
         <div className="mt-4 flex h-full flex-1 flex-col items-end justify-end pr-4">
           <p className="text-lg font-medium">Costo de Envio: $ 600</p>
+
           <p className="font-small text-">Si excede nuestro rango, se cobrara un adicional</p>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
