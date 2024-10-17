@@ -21,7 +21,7 @@ export function getCartItemPrice(item: CartItem): number {
 
 export function getCartTotal(cart: Cart): number {
   return Array.from(cart.values()).reduce(
-    (total, item) => total + getCartItemPrice(item) + (item.deliveryPrice > 1 ? 600 : 0),
+    (total, item) => total + getCartItemPrice(item) + (item.deliveryPrice > 1 ? 700 : 0),
     0,
   );
 }
