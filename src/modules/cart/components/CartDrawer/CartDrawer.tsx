@@ -57,7 +57,7 @@ function CartDrawer({
     }
 
     const updatedCart = new Map(cart);
-    const deliveryPrice = 700;
+    const deliveryPrice = 800;
 
     let deliveryPriceAdded = false;
 
