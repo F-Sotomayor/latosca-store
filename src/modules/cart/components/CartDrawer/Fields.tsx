@@ -119,7 +119,7 @@ function Fields({
       ))}
       {hasDeliveryPrice ? (
         <div className="mt-4 flex h-full flex-1 flex-col items-end justify-end pr-4">
-          <p className="text-lg font-medium">Costo de Envio: $ 800</p>
+          <p className="text-lg font-medium">Costo de Envio: $ 900</p>
 
           <p className="font-small text-">Si excede nuestro rango, se cobrara un adicional</p>
         </div>
